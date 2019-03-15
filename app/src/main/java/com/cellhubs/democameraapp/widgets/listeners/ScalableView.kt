@@ -8,5 +8,7 @@ import android.view.MotionEvent
 interface ScalableView : TouchableView {
     fun onScale(scale: Float)
 
-    fun onStartScale(event: MotionEvent)
+    fun onStartScale(event: MotionEvent) {
+        // No-op
+    }
 }

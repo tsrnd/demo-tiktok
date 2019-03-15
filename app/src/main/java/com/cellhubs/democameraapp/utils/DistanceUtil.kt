@@ -16,7 +16,7 @@ object DistanceUtil {
         return getDistanceBetweenTwoPoints(event.getX(0), event.getY(0), mid.x, mid.y)
     }
 
-    private fun midPoint(event: MotionEvent): PointF {
+    fun midPoint(event: MotionEvent): PointF {
         return getMidPointBetweenTwoPoints(event.getX(0), event.getY(0), event.getX(1), event.getY(1))
     }
 
