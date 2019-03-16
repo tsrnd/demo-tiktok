@@ -1,34 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/black"
+                android:orientation="vertical">
 
-    <VideoView
-        android:id="@+id/videoView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/llActionView" />
+    <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/exoPlayerView"
+            android:layout_width="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_above="@id/llActionView"
+            android:layout_height="wrap_content"/>
 
     <com.cellhubs.democameraapp.widgets.TouchableGroupView
-        android:id="@+id/rlChildViews"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/llActionView" />
+            android:id="@+id/rlChildViews"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/llActionView"/>
+
+    <ImageView
+            android:id="@+id/imgAddVideo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/llActionView"
+            android:contentDescription="@null"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/ic_add_box_white_36dp"/>
 
     <LinearLayout
-        android:id="@+id/llActionView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@android:color/black">
+            android:id="@+id/llActionView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@android:color/black">
 
         <ImageView
-            android:id="@+id/btnAddPhoto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@null"
-            android:padding="10dp"
-            android:src="@drawable/ic_add_a_photo_white_36dp" />
+                android:id="@+id/btnAddPhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="10dp"
+                android:src="@drawable/ic_add_a_photo_white_36dp"/>
+
+        <ImageView
+                android:id="@+id/btnAddVideo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="10dp"
+                android:src="@drawable/ic_add_a_video"/>
     </LinearLayout>
 </RelativeLayout>
