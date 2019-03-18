@@ -3,7 +3,6 @@ package com.cellhubs.democameraapp
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.media.SoundPool
 import android.net.Uri
 import android.os.Build
@@ -11,19 +10,17 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.cellhubs.democameraapp.widgets.TouchableImageView
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.PlaybackPreparer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
+import com.google.android.exoplayer2.source.ClippingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.source.LoopingMediaSource
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.MergingMediaSource
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.spherical.SphericalSurfaceView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import kotlinx.android.synthetic.main.activity_main.*
-import timber.log.Timber
 
 
 class MainActivity : AppCompatActivity(), PlayerControlView.VisibilityListener, PlaybackPreparer {
@@ -41,10 +38,11 @@ class MainActivity : AppCompatActivity(), PlayerControlView.VisibilityListener, 
     // Stream type.
     private val streamType = AudioManager.STREAM_MUSIC
     private var isSoundIdStickerLoaded: Boolean = false
-    private var isSoundBackgroundLoaded: Boolean = false
     private var soundIdSticker: Int = 0
-    private var soundBackground: Int = 0
     private var volume: Float = 0.toFloat()
+    private var finalMediaSource: MediaSource? = null
+    private var exoPlayer: SimpleExoPlayer? = null
+    private var stickers: MutableList<StickerMedia> = arrayListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,13 +53,14 @@ class MainActivity : AppCompatActivity(), PlayerControlView.VisibilityListener, 
             rlChildViews.addView(TouchableImageView(this).apply {
                 Glide.with(this).load(Uri.parse("file:///android_asset/gif/sticker.gif")).into(this)
             })
+            // Get Stickers
+            stickers.add()
             playSoundSticker()
         }
 
 
         tvAddMusic.setOnClickListener {
-            //playBackgroundSource()
-            playAudio("musics/out.mp3", true)
+            playAudio()
         }
 
         btnExport.setOnClickListener {
@@ -96,21 +95,14 @@ class MainActivity : AppCompatActivity(), PlayerControlView.VisibilityListener, 
 
         // When Sound Pool load complete.
         soundPool.setOnLoadCompleteListener { soundPool, sampleId, status ->
-            Timber.d("Loaded : $sampleId - $soundIdSticker - $soundBackground")
             when (sampleId) {
                 soundIdSticker -> {
                     isSoundIdStickerLoaded = true
-                }
-                soundBackground -> {
-                    isSoundBackgroundLoaded = true
                 }
             }
         }
         // Load sound file (destroy.wav) into SoundPool.
         soundIdSticker = soundPool.load(this, R.raw.source_effect, 1)
-        // Load sound file (gun.wav) into SoundPool.
-        soundBackground = soundPool.load(this, R.raw.out, 1)
-
     }
 
     private fun playSoundSticker() {
@@ -118,17 +110,7 @@ class MainActivity : AppCompatActivity(), PlayerControlView.VisibilityListener, 
             val leftVolumn = volume
             val rightVolumn = volume
             // Play sound objects destroyed. Returns the ID of the new stream.
-            val streamId = soundPool.play(soundIdSticker, leftVolumn, rightVolumn, 1, 0, 1f)
-        }
-    }
-
-    private fun playBackgroundSource() {
-        Timber.d("Data playBackgroundSource $volume")
-        if (isSoundBackgroundLoaded) {
-            val leftVolumn = volume
-            val rightVolumn = volume
-            val streamId2 = soundPool.play(soundBackground, 1f, 1f, 1, -1, 1f)
-            Timber.d("TimeVolume: $streamId2 - $volume")
+            soundIdSticker = soundPool.play(soundIdSticker, leftVolumn, rightVolumn, 1, 0, 1f)
         }
     }
 
@@ -155,47 +137,30 @@ class MainActivity : AppCompatActivity(), PlayerControlView.VisibilityListener, 
 
     private fun playVideo() {
         // Init Player
-        val player = ExoPlayerFactory.newSimpleInstance(this)
-        player.playWhenReady = true
-        playerView.player = player
+        exoPlayer = ExoPlayerFactory.newSimpleInstance(this)
+        exoPlayer?.playWhenReady = true
+        playerView.player = exoPlayer
         playerView.setPlaybackPreparer(this)
-        val playerInfo = Util.getUserAgent(this, "ExoPlayerInfo")
-        val dataSourceFactory = DefaultDataSourceFactory(this, playerInfo)
-        val videoMediaSource = ExtractorMediaSource.Factory(dataSourceFactory)
-            .setExtractorsFactory(DefaultExtractorsFactory())
-            .createMediaSource(Uri.parse("asset:///video/demo.MP4"))
-        player.repeatMode = ExoPlayer.REPEAT_MODE_ALL
-        player.prepare(LoopingMediaSource(videoMediaSource))
+        finalMediaSource =
+            ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, Util.getUserAgent(this, "ExoPlayerInfo")))
+                .setExtractorsFactory(DefaultExtractorsFactory())
+                .createMediaSource(Uri.parse("asset:///video/demo.MP4"))
+        exoPlayer?.repeatMode = Player.REPEAT_MODE_ALL
+        exoPlayer?.prepare(finalMediaSource)
     }
 
-    private fun playAudio(assetPath: String, isLoopAudio: Boolean = false) {
-        //set up MediaPlayer
-        val mp = MediaPlayer()
-        try {
-            val descriptor = assets.openFd(assetPath)
-            mp.setDataSource(descriptor.fileDescriptor, descriptor.startOffset, descriptor.length)
-            mp.isLooping = isLoopAudio
-            mp.setOnPreparedListener {
-                it?.start()
-            }
-            mp.setOnCompletionListener {
-                it?.let {
-                    releaseMediaPlayer(it)
-                }
-            }
-            mp.prepareAsync()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    private fun playAudio() {
+        val audioMediaSource =
+            ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, Util.getUserAgent(this, "ExoPlayerInfo")))
+                .setExtractorsFactory(DefaultExtractorsFactory())
+                .createMediaSource(Uri.parse("asset:///musics/out.mp3"))
+        val mergedAudioSource = MergingMediaSource(
+            ClippingMediaSource(finalMediaSource, 0, 8_000_000),
+            audioMediaSource
+        )
+        exoPlayer?.prepare(mergedAudioSource)
     }
 
-
-    private fun releaseMediaPlayer(mp: MediaPlayer) {
-        if (mp.isPlaying) {
-            mp.stop()
-            mp.release()
-        }
-    }
 
     override fun preparePlayback() {
     }
