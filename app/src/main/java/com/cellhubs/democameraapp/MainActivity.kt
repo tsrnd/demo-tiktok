@@ -54,7 +54,6 @@ class MainActivity : AppCompatActivity(), PlayerControlView.VisibilityListener, 
                 Glide.with(this).load(Uri.parse("file:///android_asset/gif/sticker.gif")).into(this)
             })
             // Get Stickers
-            stickers.add()
             playSoundSticker()
         }
 

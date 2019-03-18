@@ -102,11 +102,8 @@ class TouchableImageView : android.support.v7.widget.AppCompatImageView, Draggab
 
     override fun onScale(scale: Float) {
         currentZoom = savedZoom * scale
-        animate()
-            .scaleX(currentZoom)
-            .scaleY(currentZoom)
-            .setDuration(0)
-            .start()
+        scaleX = currentZoom
+        scaleY = currentZoom
     }
 
     override fun onStartRotate(event: MotionEvent) {
@@ -114,10 +111,7 @@ class TouchableImageView : android.support.v7.widget.AppCompatImageView, Draggab
     }
 
     override fun onRotate(degree: Float) {
-        currentDegree = savedDegree + degree
-        animate()
-            .rotation(currentDegree)
-            .setDuration(0)
-            .start()
+        currentDegree = (degree + currentDegree) % 360
+        rotation = degree
     }
 }
