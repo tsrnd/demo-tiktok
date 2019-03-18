@@ -1,34 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-    <VideoView
-        android:id="@+id/videoView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/llActionView" />
+    <com.google.android.exoplayer2.ui.PlayerView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/playerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/black"
+            app:use_controller="true"
+            android:layout_above="@id/llActionView"/>
 
     <com.cellhubs.democameraapp.widgets.TouchableGroupView
-        android:id="@+id/rlChildViews"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/llActionView" />
+            android:id="@+id/rlChildViews"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/llActionView"/>
 
     <LinearLayout
-        android:id="@+id/llActionView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@android:color/black">
+            android:id="@+id/llActionView"
+            android:layout_width="match_parent"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@android:color/black">
+
+        <TextView
+                android:id="@+id/tvAddSticker"
+                android:text="Add Sticker"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+
+
+        <TextView
+                android:id="@+id/tvAddMusic"
+                android:text="Add Music"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:textColor="@android:color/white"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
 
         <ImageView
-            android:id="@+id/btnAddPhoto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@null"
-            android:padding="10dp"
-            android:src="@drawable/ic_add_a_photo_white_36dp" />
+                android:id="@+id/btnExport"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:padding="10dp"
+                android:src="@drawable/ic_add_a_photo_white_36dp"/>
+
+
     </LinearLayout>
 </RelativeLayout>
