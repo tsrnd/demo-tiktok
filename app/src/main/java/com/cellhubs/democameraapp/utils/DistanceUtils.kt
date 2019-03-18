@@ -6,7 +6,7 @@ import android.view.MotionEvent
 /**
  * @author at-hungtruong
  */
-object DistanceUtil {
+object DistanceUtils {
     fun getDistanceBetweenTwoPoints(x1: Float, y1: Float,
                                     x2: Float, y2: Float): Float {
         return Math.sqrt(Math.pow((x2 - x1).toDouble(), 2.0) + Math.pow((y2 - y1).toDouble(), 2.0)).toFloat()

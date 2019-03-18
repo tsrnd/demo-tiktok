@@ -7,16 +7,18 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.widget.RelativeLayout
-import com.cellhubs.democameraapp.utils.DistanceUtil.distance
-import com.cellhubs.democameraapp.utils.DistanceUtil.getDistanceBetweenTwoPoints
-import com.cellhubs.democameraapp.utils.DistanceUtil.midPoint
-import com.cellhubs.democameraapp.utils.DistanceUtil.rotation
+import com.cellhubs.democameraapp.utils.DistanceUtils.distance
+import com.cellhubs.democameraapp.utils.DistanceUtils.getDistanceBetweenTwoPoints
+import com.cellhubs.democameraapp.utils.DistanceUtils.midPoint
+import com.cellhubs.democameraapp.utils.DistanceUtils.rotation
 import com.cellhubs.democameraapp.widgets.listeners.*
 
 /**
  * @author at-hungtruong
  */
 class TouchableGroupView : RelativeLayout {
+    var isScaleAndRotateTogether = true
+
     private var oldDist = 0f
     private var oldDegree = 0f
     private val startTouch = PointF()
@@ -58,18 +60,29 @@ class TouchableGroupView : RelativeLayout {
                         (touchedChild as? DraggableView)?.onDrag(event)
                     }
                     TouchState.TOUCH_STATE_TWO_POINTED -> {
-                        val x = oldDist
-                        val y = getDistanceBetweenTwoPoints(event.getX(0),
-                                event.getY(0), startTouch.x, startTouch.y)
-                        val z = distance(event, mid)
-                        val cos = (x * x + y * y - z * z) / (2 * x * y)
-                        val degree = Math.toDegrees(Math.acos(cos.toDouble())).toFloat()
-                        if (degree < 120 && degree > 45) {
-                            oldDegree = rotation(event, mid)
-                            currentTouchState = TouchState.TOUCH_STATE_ROTATE
+                        if (!isScaleAndRotateTogether) {
+                            val x = oldDist
+                            val y = getDistanceBetweenTwoPoints(
+                                event.getX(0),
+                                event.getY(0), startTouch.x, startTouch.y
+                            )
+                            val z = distance(event, mid)
+                            val cos = (x * x + y * y - z * z) / (2 * x * y)
+                            val degree = Math.toDegrees(Math.acos(cos.toDouble())).toFloat()
+                            if (degree < 120 && degree > 45) {
+                                oldDegree = rotation(event, mid)
+                                currentTouchState = TouchState.TOUCH_STATE_ROTATE
+                            } else {
+                                oldDist = distance(event, mid)
+                                currentTouchState = TouchState.TOUCH_STATE_SCALE
+                            }
                         } else {
-                            oldDist = distance(event, mid)
-                            currentTouchState = TouchState.TOUCH_STATE_SCALE
+                            val newDist = distance(event, mid)
+                            val newDegree = rotation(event, mid)
+                            val rotate = newDegree - oldDegree
+                            val scale = newDist / oldDist
+                            (touchedChild as? ScalableView)?.onScale(scale)
+                            (touchedChild as? RotatableView)?.onRotate(rotate)
                         }
                     }
                     TouchState.TOUCH_STATE_SCALE -> {
